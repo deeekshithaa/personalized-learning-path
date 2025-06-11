@@ -1,28 +1,15 @@
-// 1. Importing Dependencies
+// backend/server.js
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config(); // Allows us to use environment variables
-
-// 2. Creating Express App
-const app = express();
-const PORT = process.env.PORT || 5001; // Use port from .env 
-
-// 3. Middleware
-app.use(cors()); // Enable Cross-Origin Resource Sharing
-app.use(express.json()); // Allow the server to accept JSON in the body of requestscd backend
-
-// 4. Import Routes
+require('dotenv').config(); // <-- ADD THIS BACK
+const connectDB = require('./config/db'); // <-- ADD THIS BACK
 const userRoutes = require('./routes/userRoutes');
 
-// 5. Use Routes
+connectDB(); // <-- ADD THIS BACK
+
+const app = express();
+const PORT = process.env.PORT || 8080;
+app.use(cors());
+app.use(express.json());
 app.use('/api/users', userRoutes);
-
-// 6. Basic Route for testing server is up
-app.get('/', (req, res) => {
-  res.send('Hello from the Personalized Learning Path API!');
-});
-
-// 7. Start the Server
-app.listen(PORT, () => {
-  console.log(`Server is running on port: ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server with DB connection attempt running on ${PORT}`));
