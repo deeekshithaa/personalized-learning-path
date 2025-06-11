@@ -1,13 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import LoginView from '../views/LoginView.vue'
+// Import our new view components
 import RegisterView from '../views/RegisterView.vue'
+import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
 
 const routes = [
   {
-    path: '/',
-    // Redirect the root path to the login page for now
-    redirect: '/login' 
+    path: '/register',
+    name: 'register',
+    component: RegisterView
   },
   {
     path: '/login',
@@ -15,14 +16,15 @@ const routes = [
     component: LoginView
   },
   {
-    path: '/register',
-    name: 'register',
-    component: RegisterView
-  },
-  {
+    // The main page after login
     path: '/dashboard',
     name: 'dashboard',
     component: DashboardView
+  },
+  {
+    // Let's make the root path redirect to the login page for now
+    path: '/',
+    redirect: '/login'
   }
 ]
 
