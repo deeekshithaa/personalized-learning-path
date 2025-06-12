@@ -1,26 +1,29 @@
+// frontend/src/services/api.js
+
 import axios from 'axios';
 
-
-// Create a new instance of axios with a custom configuration
+// This is our proxy config from vue.config.js
 const api = axios.create({
   baseURL: '/api', 
   headers: {
     'Content-Type': 'application/json'
-  },
-  
-  proxy: false 
+  }
 });
 
-// Now, we define the specific functions that our components can call
 export default {
-  // A function to register a user.
   registerUser(userData) {
     return api.post('/users/register', userData);
-  },
+  }, // <-- Comma is essential
 
-  // A function to login a user.
   loginUser(credentials) {
     return api.post('/users/login', credentials);
-  }
-};
+  }, // <-- Comma is essential
 
+  updateUserProfile(profileData, token) {
+    return api.put('/users/profile', profileData, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  } // <-- No comma needed on the last one
+};
