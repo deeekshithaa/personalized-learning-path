@@ -60,14 +60,13 @@ router.post('/login', async (req, res) => {
             }
         };
 
-        // We need a JWT_SECRET in our .env file
         jwt.sign(
             payload,
             process.env.JWT_SECRET,
             { expiresIn: 3600 }, // Expires in 1 hour
             (err, token) => {
                 if (err) throw err;
-                res.json({ token }); // Send the token back to the client
+                res.json({ token }); 
             }
         );
 
@@ -78,5 +77,4 @@ router.post('/login', async (req, res) => {
 });
 
 
-// --- EXPORT THE ROUTER ---
 module.exports = router; // <--- FIX #2: MOVE THIS TO THE VERY END

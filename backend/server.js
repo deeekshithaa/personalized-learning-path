@@ -25,3 +25,10 @@ app.use('/api/users', userRoutes);
 app.listen(PORT, () => {
     console.log(`Server is now running on port: ${PORT}`);
 });
+
+app.listen(PORT, () => {
+    console.log('----------------------------------------------------');
+    console.log('--- SERVER VERSION 3.0 --- LISTENING FOR REQUESTS ---');
+    console.log(`--- http://localhost:${PORT} ---`);
+    console.log('----------------------------------------------------');
+});
