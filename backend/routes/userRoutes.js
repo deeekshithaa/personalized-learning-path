@@ -1,89 +1,42 @@
+// backend/routes/userRoutes.js
+
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 const User = require('../models/userModel');
-const { protect } = require('../middleware/authMiddleware'); // ✅ FIX #1: Import protect middleware
+const { protect } = require('../middleware/authMiddleware');
 
-// --- REGISTER ROUTE ---
-router.post('/register', async (req, res) => {
+// 1. REGISTER
+router.post('/register', async (req, res) => { /* ... your correct register code ... */ });
+
+// 2. LOGIN
+router.post('/login', async (req, res) => { /* ... your correct login code ... */ });
+
+// 3. UPDATE PROFILE
+router.put('/profile', protect, async (req, res) => { /* ... your correct profile update code ... */ });
+
+// 4. GET LEARNING PATH
+router.get('/learning-path', protect, async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: 'Please enter all fields' });
+        const user = req.user;
+        if (!user.goal || !user.skillLevel) {
+            return res.status(400).json({ message: 'User profile is not complete. Please complete the onboarding.' });
         }
-
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({ message: 'User with that email already exists' });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        const newUser = new User({ name, email, password: hashedPassword });
-        const savedUser = await newUser.save();
-
-        res.status(201).json({
-            _id: savedUser.id,
-            name: savedUser.name,
-            email: savedUser.email,
+        const mlServiceResponse = await axios.post('http://127.0.0.1:5001/recommend', {
+            goal: user.goal,
+            skillLevel: user.skillLevel,
+            learningStyle: user.learningStyle
         });
+        res.json(mlServiceResponse.data);
     } catch (error) {
-        console.error('REGISTER ERROR:', error);
-        res.status(500).json({ message: 'Server Error' });
-    }
-});
-
-// --- LOGIN ROUTE ---
-router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+        if (error.code === 'ECONNREFUSED') {
+            return res.status(500).json({ message: 'AI service is currently unavailable.' });
         }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        const payload = { user: { id: user.id } };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: 3600 },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
-    } catch (error) {
-        console.error('LOGIN ERROR:', error);
-        res.status(500).json({ message: 'Server Error' });
+        console.error('LEARNING PATH ERROR:', error);
+        res.status(500).json({ message: 'Error fetching learning path' });
     }
 });
 
-// --- UPDATE PROFILE ROUTE ---
-router.put('/profile', protect, async (req, res) => {
-    try {
-        const { goal, skillLevel, learningStyle } = req.body;
-
-        const updatedUser = await User.findByIdAndUpdate(
-            req.user.id,
-            { goal, skillLevel, learningStyle },
-            { new: true }
-        ).select('-password');
-
-        res.json(updatedUser);
-    } catch (error) {
-        console.error('PROFILE UPDATE ERROR:', error);
-        res.status(500).json({ message: 'Server Error' });
-    }
-});
-
-module.exports = router; 
+module.exports = router;

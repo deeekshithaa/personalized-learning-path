@@ -11,19 +11,31 @@ const api = axios.create({
 });
 
 export default {
+  // Handles user registration
   registerUser(userData) {
     return api.post('/users/register', userData);
-  }, // <-- Comma is essential
+  },
 
+  // Handles user login
   loginUser(credentials) {
     return api.post('/users/login', credentials);
-  }, // <-- Comma is essential
+  },
 
+  // Updates the user's profile after the quiz
   updateUserProfile(profileData, token) {
     return api.put('/users/profile', profileData, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-  } // <-- No comma needed on the last one
+  },
+
+  // Gets the personalized learning path
+  getLearningPath(token) {
+    return api.get('/users/learning-path', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
 };

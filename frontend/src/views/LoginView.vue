@@ -1,6 +1,7 @@
 <template>
   <div class="login-container">
-    <form @submit.prevent="handleLogin" class="login-form">
+    <!-- FIX: The form tag no longer has the @submit listener -->
+    <form class="login-form">
       <h2>Login to Your Account</h2>
       <div class="form-group">
         <label for="email">Email</label>
@@ -10,7 +11,8 @@
         <label for="password">Password</label>
         <input type="password" id="password" v-model="password" required />
       </div>
-      <button type="submit">Login</button>
+      <!-- FIX: The button is now type="button" and has the @click listener -->
+      <button type="button" @click="handleLogin">Login</button>
     </form>
   </div>
 </template>
@@ -27,20 +29,28 @@ export default {
     };
   },
   methods: {
-    async handleLogin() {
-      try {
-        const credentials = { email: this.email, password: this.password };
-        const response = await api.loginUser(credentials);
-
-        // Save token to localStorage
-        localStorage.setItem('token', response.data.token);
-
-        alert('Login successful!');
-        this.$router.push('/onboarding'); 
-
-      } catch (error) {
-        alert(`Login failed: ${error.response?.data?.message || 'Unknown error'}`);
-      }
+    // The bulletproof version for Login
+    handleLogin() {
+      const credentials = { email: this.email, password: this.password };
+      
+      api.loginUser(credentials)
+        .then(response => {
+          localStorage.setItem('token', response.data.token);
+          alert('Login successful!');
+          this.$router.push('/onboarding');
+        })
+        .catch(error => {
+          let errorMessage = 'An unexpected error occurred.';
+          if (error.response && error.response.data && error.response.data.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.request) {
+            errorMessage = 'Could not connect to the server.';
+          } else {
+            errorMessage = error.message;
+          }
+          console.error('Login failed:', error);
+          alert(`Login failed: ${errorMessage}`);
+        });
     }
   }
 };
