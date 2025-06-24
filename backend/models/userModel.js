@@ -9,15 +9,30 @@ const userSchema = mongoose.Schema(
     email: {
       type: String,
       required: [true, 'Please add an email'],
-      unique: true, // No two users can have the same email
+      unique: true,
     },
     password: {
       type: String,
       required: [true, 'Please add a password'],
     },
+
+    // --- NEW FIELDS START HERE ---
+    goal: {
+      type: String,
+      default: null, // e.g., 'Data Science', 'Web Development'
+    },
+    skillLevel: {
+      type: String,
+      default: null, // e.g., 'Beginner', 'Intermediate'
+    },
+    learningStyle: {
+      type: String,
+      default: null, // e.g., 'Video', 'Reading', 'Projects'
+    }
+    // --- NEW FIELDS END HERE ---
   },
   {
-    timestamps: true, // Automatically adds `createdAt` and `updatedAt` fields
+    timestamps: true,
   }
 );
 
