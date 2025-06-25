@@ -1,5 +1,6 @@
 <template>
   <div class="register-container">
+    <!-- Using a direct @click handler on the button -->
     <form class="register-form">
       <h2>Create Your Account</h2>
 
@@ -18,16 +19,14 @@
         <input type="password" id="password" v-model="password" required />
       </div>
 
-      <!-- This button now correctly calls the real function -->
       <button type="button" @click="handleRegister">Register</button>
-      
     </form>
   </div>
 </template>
 
 <script>
-// We are importing axios DIRECTLY, not our api service.
-import axios from 'axios';
+// Importing our service
+import api from '@/services/api';
 
 export default {
   name: 'RegisterView',
@@ -39,28 +38,29 @@ export default {
     };
   },
   methods: {
+    // Using the Promise-based .then().catch() syntax for maximum compatibility
     handleRegister() {
-      // We are not using async/await. We are not using our api service.
-      console.log('--- DIRECT AXIOS TEST: Button Clicked ---');
-      
       const userData = {
         name: this.name,
         email: this.email,
         password: this.password
       };
 
-      // This is the most direct test possible.
-      // It uses the proxy URL we set up in vue.config.js
-      axios.post('/api/users/register', userData)
+      api.registerUser(userData)
         .then(response => {
-          // If this runs, the connection works.
-          alert('HOLY CRAP, IT WORKED! Check the console!');
-          console.log('SUCCESS:', response.data);
+          console.log('Registration successful!', response.data);
+          alert('Success! You have been registered.');
+          this.$router.push('/login');
         })
         .catch(error => {
-          // If this runs, we get a REAL error message.
-          alert('IT FAILED, BUT WE GOT A REAL ERROR! Check the console!');
-          console.error('FAILURE:', error);
+          console.error('Registration failed:', error);
+          let errorMessage = 'An unexpected error occurred.';
+          if (error.response && error.response.data && error.response.data.message) {
+            errorMessage = error.response.data.message;
+          } else {
+            errorMessage = 'Could not connect to the server. Please check your setup.';
+          }
+          alert(`Registration failed: ${errorMessage}`);
         });
     }
   }
@@ -68,7 +68,7 @@ export default {
 </script>
 
 <style scoped>
-/* Styles are perfect and stay the same */
+/* Your beautiful styles */
 .register-container { display: flex; justify-content: center; align-items: center; padding: 2rem; }
 .register-form { width: 100%; max-width: 400px; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background-color: #f9f9f9; }
 .register-form h2 { text-align: center; margin-bottom: 1.5rem; }
